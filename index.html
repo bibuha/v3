@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rich Bot v1.1</title>
+   <script src='//whephiwums.com/sdk.js' data-zone='9006260' data-sdk='show_9006260'></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #0F172A, #1E293B);
+            margin: 0;
+            padding: 0;
+            color: white;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .header {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .account-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: left;
+            max-width: 400px;
+            margin: 0 auto 20px auto;
+            margin-top: 100px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .account-info p {
+            margin: 10px 0;
+        }
+
+        .highlight {
+            color: #22C55E;
+            font-weight: bold;
+        }
+
+        .button {
+            display: block;
+            width: 90%;
+            max-width: 400px;
+            margin: 10px auto;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #3B82F6;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6B7280;
+            color: white;
+        }
+
+        
+.withdraw-form {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px px rgba(0, 0, 0, 0.3);
+    margin: 20px auto;
+    max-width: 400px;
+    text-align: left;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: bold;
+    color: #22C55E;
+    margin-bottom: 8px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Animasi Tombol */
+.button:active {
+    transform: scale(0.95);
+}
+
+        .history {
+            margin-top: 20px;
+            text-align: left;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            display: none; /* Default disembunyikan */
+        }
+
+        .footer {
+    position: fixed; /* tetap dibawah layar */
+    bottom: 10px; /* Jarak sedikit dari bawah */
+    left: 50%; /* Geser ke tengah */
+    transform: translateX(-50%); /* Pusatkan horizontal */
+    z-index: -1; /* Letakkan di background paling belakang */
+    color: #9aa5b1; /* Warna abu muda sesuai gambar */
+    font-size: 14px; /* Ukuran font disesuaikan */
+            z-index: -1;       /* Pastikan di belakang */
+}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">✨Rich Bot v1.1✨</div>
+
+        <div class="account-info">
+            <p>👤 Nama: <span id="nama" class="highlight">Memuat...</span></p>
+            <p>📛 Username: <span id="username" class="highlight">Memuat...</span></p>
+            <p>🆔 ID: <span id="id" class="highlight">rctb-...</span></p>
+            <p>📺 Total Ditonton: <span id="ads-watched" class="highlight">0</span>/40</p>
+            <p>💰 Pendapatan: Rp <span id="saldo" class="highlight">0</span></p>
+        </div>
+
+        <button id="btnIklan" class="button btn-primary" onclick="tontonIklan()">
+            📺 Tonton Iklan (Rp 13)
+        </button>
+
+        <button class="button btn-secondary" onclick="toggleForm()">💸 Cairkan Saldo</button>
+        
+        <div id="withdrawForm" class="withdraw-form">
+    <div class="input-group">
+        <label for="namaDANA">👤 Nama DANA</label>
+        <input type="text" id="namaDANA" placeholder="Masukkan nama sesuai akun DANA" maxlength="50">
+    </div>
+
+    <div class="input-group">
+        <label for="noDANA">📞 Nomor DANA</label>
+        <input type="text" id="noDANA" placeholder="Masukkan nomor DANA (10-13 digit)" maxlength="13">
+    </div>
+
+    <div class="input-group">
+        <label for="jumlah">💰 Jumlah Penarikan</label>
+        <input type="number" id="jumlah" placeholder="Minimal Rp.1000 & kelipatan Rp.1000" min="1000" step="1000">
+    </div>
+
+    <button class="button btn-primary" onclick="kirimPenarikan()">✅ Kirim Penarikan</button>
+</div>
+ 
+        <button class="button btn-secondary" onclick="toggleHistory()">📜 Lihat Riwayat</button>
+        
+        <div class="history" id="historyList">
+            <h3>📜 Riwayat Penarikan:</h3>
+            <ul id="riwayat"></ul>
+        </div>
+
+        <div class="footer">© 2025 Rich Bot v1.1</div>
+    </div>
+
+    <script>
+        window.onload = function () {
+            ambilDataTelegram();
+            muatDataPendapatan();
+            resetTontonanSetiapHari();
+            tampilkanRiwayat();
+        };
+
+        function ambilDataTelegram() {
+            const params = new URLSearchParams(window.location.hash.replace('#', '?'));
+            const nama = params.get('first_name') || localStorage.getItem('nama') || 'Tidak Diketahui';
+            const username = params.get('username') || localStorage.getItem('username') || 'Tidak Ada';
+            const id = params.get('id') || localStorage.getItem('id') || '00000';
+
+            localStorage.setItem('nama', nama);
+            localStorage.setItem('username', username);
+            localStorage.setItem('id', id);
+
+            document.getElementById('nama').textContent = nama;
+            document.getElementById('username').textContent = `@${username}`;
+            document.getElementById('id').textContent = `${id}`;
+        }
+
+        function muatDataPendapatan() {
+            document.getElementById('saldo').textContent = localStorage.getItem('saldo') || 0;
+            document.getElementById('ads-watched').textContent = localStorage.getItem('adsWatched') || 0;
+        }
+
+        function tontonIklan() {
+            let adsWatched = parseInt(localStorage.getItem('adsWatched')) || 0;
+
+    // Validasi maksimal 40 kali per hari
+    if (adsWatched >= 40) {
+        alert('linit tercapai. besok lagi ya !!!');
+        return;
+    }
+            
+    if (typeof show_9006260 === 'function') {
+        show_9006260();
+        
+        
+        // Nonaktifkan tombol selama 23 detik
+        mulaiTimerIklan(23);
+    } else {
+        alert('Iklan tidak tersedia.');
+    }
+}
+
+function mulaiTimerIklan(detik) {
+    const tombol = document.getElementById('btnIklan');
+    tombol.disabled = true;
+
+    let sisaWaktu = detik;
+    tombol.innerHTML = `⏳ Tunggu ${sisaWaktu}s`;
+
+    const hitungMundur = setInterval(() => {
+        sisaWaktu--;
+        tombol.innerHTML = `⏳ Tunggu ${sisaWaktu}s`;
+
+        if (sisaWaktu <= 0) {
+            clearInterval(hitungMundur);
+            tombol.innerHTML = '📺 Tonton Iklan (Rp 13)';
+            tombol.disabled = false;
+
+            // Update pendapatan setelah timer selesai
+            updatePendapatan();
+             // Cek kembali batas 40 tontonan
+            let adsWatched = parseInt(localStorage.getItem('adsWatched')) || 0;
+            if (adsWatched >= 40) {
+                tombol.innerHTML = '🚫 Batas Tercapai';
+                tombol.disabled = true;
+            }
+        }
+    }, 1000);
+}
+
+        function updatePendapatan() {
+            let saldo = parseInt(localStorage.getItem('saldo')) || 0;
+            let adsWatched = parseInt(localStorage.getItem('adsWatched')) || 0;
+            saldo += 13;
+            adsWatched += 1;
+
+            localStorage.setItem('saldo', saldo);
+            localStorage.setItem('adsWatched', adsWatched);
+            muatDataPendapatan();
+        }
+
+        function toggleForm() {
+            const form = document.getElementById('withdrawForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleHistory() {
+            const history = document.getElementById('historyList');
+            history.style.display = history.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function resetTontonanSetiapHari() {
+            const today = new Date().toLocaleDateString();
+            if (localStorage.getItem('lastReset') !== today) {
+                localStorage.setItem('adsWatched', '0');
+                localStorage.setItem('lastReset', today);
+                muatDataPendapatan();
+            }
+        }
+    
+    function kirimPenarikan() {
+    const namaDANA = document.getElementById('namaDANA').value.trim();
+    const noDANA = document.getElementById('noDANA').value.trim();
+    const jumlah = parseInt(document.getElementById('jumlah').value, 10);
+    const saldo = parseInt(localStorage.getItem('saldo')) || 0;
+
+    if (!namaDANA || namaDANA.length < 3) {
+        alert('Nama DANA harus diisi minimal 3 karakter!');
+        return;
+    }
+
+    if (!noDANA.match(/^\d{10,13}$/)) {
+        alert('Nomor DANA harus terdiri dari 10 hingga 13 digit!');
+        return;
+    }
+
+    if (jumlah < 1000 || jumlah % 1000 !== 0) {
+        alert('Jumlah penarikan minimal Rp.1000 dan kelipatan Rp.1000!');
+        return;
+    }
+
+    if (jumlah > saldo) {
+        alert('Saldo tidak mencukupi!');
+        return;
+    }
+
+    // Simulasi sukses/gagal (90% sukses, 10% gagal)
+    const status = Math.random() < 0.9 ? '✅ Berhasil' : '❌ Gagal';
+
+    // Simpan riwayat transaksi
+    const waktu = new Date();
+    const tanggal = waktu.toLocaleDateString();
+    const jam = waktu.toLocaleTimeString();
+
+    const riwayatBaru = {
+        namaDANA: namaDANA,
+        noDANA: noDANA,
+        jumlah: jumlah,
+        tanggal: tanggal,
+        status,
+        waktu: `${tanggal} ${jam}`,
+        saldoSetelah: saldo - (status === '✅ Berhasil' ? jumlah : 0)
+    };
+
+    const riwayat = JSON.parse(localStorage.getItem('riwayat')) || [];
+    riwayat.unshift(riwayatBaru); // Menambahkan di awal array
+    localStorage.setItem('riwayat', JSON.stringify(riwayat));
+
+    // Kurangi saldo hanya jika berhasil
+    if (status === '✅ Berhasil') {
+        localStorage.setItem('saldo', saldo - jumlah);
+        muatDataPendapatan();
+    }
+
+    // Bersihkan form
+    document.getElementById('namaDANA').value = '';
+    document.getElementById('noDANA').value = '';
+    document.getElementById('jumlah').value = '';
+
+    alert(`Penarikan ${status}`);
+    tampilkanRiwayat();
+}
+
+        function tampilkanRiwayat() {
+    const riwayat = JSON.parse(localStorage.getItem('riwayat')) || [];
+    const daftarRiwayat = document.getElementById('riwayat');
+
+    if (riwayat.length === 0) {
+        daftarRiwayat.innerHTML = '<li>📭 Belum ada riwayat penarikan.</li>';
+        return;
+    }
+
+    daftarRiwayat.innerHTML = riwayat.map(item => `
+        <li>
+            📅 ${item.tanggal} 🕒 ${item.jam}<br>
+            👤 <b>${item.namaDANA}</b> | 📞 ${item.noDANA}<br>
+            💸 Rp ${item.jumlah.toLocaleString()} ${item.status}
+            <p>🔢 Saldo Setelah: Rp ${item.saldoSetelah}</p>
+        </li>
+        <hr>
+    `).join('');
+}
+    </script>
+
+</body>
+
+</html>
